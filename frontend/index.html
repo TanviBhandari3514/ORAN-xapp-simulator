@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O-RAN xApp Simulator</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>O-RAN xApp Simulator</h1>
+        <div id="connection-badge" class="badge disconnected">Disconnected</div>
+    </header>
+
+    <main class="dashboard">
+        <!-- Panel 1: Simulation Control -->
+        <section class="panel" id="panel-control">
+            <h2>Simulation</h2>
+            <div class="panel-content">
+                <div class="status-indicator">
+                    <span class="dot stopped"></span>
+                    <span id="sim-state">Stopped</span>
+                </div>
+                <div class="button-group">
+                    <button id="btn-start" class="btn btn-start">Start</button>
+                    <button id="btn-stop" class="btn btn-stop" disabled>Stop</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: Parameter Configuration -->
+        <section class="panel" id="panel-params">
+            <h2>Parameters</h2>
+            <div class="panel-content">
+                <div class="param-group">
+                    <h3>Base Stations</h3>
+                    <label>eNB Count <input type="number" id="param-enb" min="1" max="20" value="1"></label>
+                    <label>gNB Count <input type="number" id="param-gnb" min="1" max="50" value="1"></label>
+                </div>
+                <div class="param-group">
+                    <h3>User Equipment</h3>
+                    <label>UE Count <input type="number" id="param-ue" min="1" max="1000" value="2"></label>
+                </div>
+                <div class="param-group">
+                    <h3>RF Configuration</h3>
+                    <label>Tx Power (dBm) <input type="number" id="param-txpower" min="0.1" max="60" step="0.1" value="30.0"></label>
+                    <label>Frequency (GHz) <input type="number" id="param-freq" min="0.5" max="100" step="0.1" value="28.0"></label>
+                    <label>Bandwidth (MHz) <input type="number" id="param-bw" min="5" max="400" step="5" value="100"></label>
+                </div>
+                <button id="btn-apply-params" class="btn btn-apply">Apply Parameters</button>
+            </div>
+        </section>
+
+        <!-- Panel 3: Log Viewer -->
+        <section class="panel" id="panel-logs">
+            <h2>Live Logs</h2>
+            <div class="log-controls">
+                <div class="layer-filters">
+                    <button class="filter-btn active" data-layer="all">ALL</button>
+                    <button class="filter-btn" data-layer="PHY">PHY</button>
+                    <button class="filter-btn" data-layer="MAC">MAC</button>
+                    <button class="filter-btn" data-layer="RLC">RLC</button>
+                    <button class="filter-btn" data-layer="PDCP">PDCP</button>
+                    <button class="filter-btn" data-layer="RRC">RRC</button>
+                    <button class="filter-btn" data-layer="E2">E2</button>
+                </div>
+                <button id="btn-pause-logs" class="btn btn-small">Pause</button>
+            </div>
+            <div id="log-output" class="log-output">
+                <div class="log-entry system">Waiting for simulation to start...</div>
+            </div>
+        </section>
+
+        <!-- Panel 4: Packet Flow Visualization -->
+        <section class="panel" id="panel-flow">
+            <h2>Packet Flow</h2>
+            <div class="panel-content" id="flow-canvas">
+                <div class="placeholder">Topology will appear when simulation is running</div>
+            </div>
+        </section>
+
+        <!-- Panel 5: Insights -->
+        <section class="panel" id="panel-insights">
+            <h2>Insights</h2>
+            <div class="panel-content" id="insights-content">
+                <div class="insight-card">
+                    <h3>Scenario Zero</h3>
+                    <p>This scenario simulates an O-RAN network with mmWave gNBs, LTE eNBs, and mobile UEs. The xApp running in the Near-RT RIC makes real-time handover decisions based on E2 reports from the base stations.</p>
+                </div>
+                <div class="insight-card">
+                    <h3>Current Phase</h3>
+                    <p id="current-phase">Idle - Start the simulation to see live insights</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

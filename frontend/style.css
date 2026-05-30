@@ -1,0 +1,266 @@
+/* O-RAN xApp Simulator - Light Theme */
+
+:root {
+    --bg-primary: #f8f9fa;
+    --bg-panel: #ffffff;
+    --bg-header: #1a237e;
+    --text-primary: #212121;
+    --text-secondary: #616161;
+    --border: #e0e0e0;
+    --accent: #1565c0;
+    --accent-hover: #0d47a1;
+    --success: #2e7d32;
+    --danger: #c62828;
+    --warning: #f57f17;
+    --log-bg: #fafafa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background: var(--bg-header);
+    color: white;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge.connected { background: var(--success); color: white; }
+.badge.disconnected { background: var(--danger); color: white; }
+
+/* Dashboard Grid */
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+    padding: 16px;
+    height: calc(100vh - 56px);
+}
+
+/* Panels */
+.panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel h2 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: #f5f5f5;
+}
+
+.panel-content {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+#panel-logs {
+    grid-column: 1 / 3;
+}
+
+#panel-flow {
+    grid-row: 1 / 3;
+    grid-column: 3;
+}
+
+/* Simulation Control */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot.stopped { background: #9e9e9e; }
+.dot.starting { background: var(--warning); animation: pulse 1s infinite; }
+.dot.running { background: var(--success); }
+.dot.error { background: var(--danger); }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.button-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* Buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-start { background: var(--success); color: white; }
+.btn-start:hover:not(:disabled) { background: #1b5e20; }
+.btn-stop { background: var(--danger); color: white; }
+.btn-stop:hover:not(:disabled) { background: #b71c1c; }
+.btn-apply { background: var(--accent); color: white; width: 100%; margin-top: 12px; }
+.btn-apply:hover { background: var(--accent-hover); }
+.btn-small { background: #e0e0e0; color: var(--text-primary); padding: 4px 10px; font-size: 0.75rem; }
+
+/* Parameters */
+.param-group {
+    margin-bottom: 12px;
+}
+
+.param-group h3 {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.param-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.param-group input {
+    width: 80px;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    text-align: right;
+}
+
+/* Log Viewer */
+.log-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.layer-filters {
+    display: flex;
+    gap: 4px;
+}
+
+.filter-btn {
+    padding: 3px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.log-output {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    padding: 8px 16px;
+    overflow-y: auto;
+    flex: 1;
+    background: var(--log-bg);
+}
+
+.log-entry {
+    padding: 2px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.log-entry.system { color: var(--accent); }
+.log-entry.near_rt_ric { color: #6a1b9a; }
+.log-entry.e2_simulator { color: #00695c; }
+.log-entry.ns3_mmwave { color: #e65100; }
+.log-entry.xapp { color: #1565c0; }
+
+.log-time { color: #9e9e9e; }
+.log-source { font-weight: 600; }
+
+/* Packet Flow */
+#flow-canvas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.placeholder {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* Insights */
+.insight-card {
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.insight-card h3 {
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.insight-card p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
