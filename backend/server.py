@@ -138,7 +138,7 @@ def create_app(config: dict) -> web.Application:
     # Routes
     app.router.add_get("/", index_handler)
     app.router.add_get("/ws", websocket_handler)
-    app.router.add_get("/static/{{filename}}", static_handler)
+    app.router.add_get("/static/{filename}", static_handler)
 
     return app
 
