@@ -7,11 +7,33 @@ import json
 import pathlib
 from aiohttp import web
 
+from backend.simulation import SimulationController
+
 # Track connected WebSocket clients
 connected_clients: set[web.WebSocketResponse] = set()
 
 # Path to frontend static files
 FRONTEND_DIR = pathlib.Path(__file__).parent.parent / "frontend"
+
+# Simulation controller (initialized in create_app)
+sim_controller: SimulationController = None
+
+
+async def broadcast(message: dict):
+    """Send a message to all connected WebSocket clients."""
+    for ws in list(connected_clients):
+        try:
+            await ws.send_json(message)
+        except Exception:
+            connected_clients.discard(ws)
+
+
+async def log_callback(source: str, message: str):
+    """Called by SimulationController when a log line is produced."""
+    await broadcast({
+        "type": "log",
+        "entries": [{"source": source, "message": message, "layer": None}]
+    })
 
 
 async def index_handler(request: web.Request) -> web.FileResponse:
@@ -36,12 +58,13 @@ async def websocket_handler(request: web.Request) -> web.WebSocketResponse:
     connected_clients.add(ws)
     print(f"  [WS] Client connected. Total: {len(connected_clients)}")
 
-    # Send welcome message
+    # Send welcome message + current status
     await ws.send_json({
         "type": "system",
         "message": "Connected to O-RAN xApp Simulator",
         "status": "ready"
     })
+    await ws.send_json(sim_controller.get_status())
 
     try:
         async for msg in ws:
@@ -63,12 +86,18 @@ async def handle_command(ws: web.WebSocketResponse, data: dict) -> None:
 
     if command == "ping":
         await ws.send_json({"type": "pong"})
+
     elif command == "get_status":
-        await ws.send_json({
-            "type": "status",
-            "simulation": "stopped",
-            "connected_clients": len(connected_clients)
-        })
+        await ws.send_json(sim_controller.get_status())
+
+    elif command == "start_simulation":
+        result = await sim_controller.start()
+        await broadcast(result)
+
+    elif command == "stop_simulation":
+        result = await sim_controller.stop()
+        await broadcast(result)
+
     else:
         await ws.send_json({
             "type": "error",
@@ -78,8 +107,14 @@ async def handle_command(ws: web.WebSocketResponse, data: dict) -> None:
 
 def create_app(config: dict) -> web.Application:
     """Create and configure the aiohttp application."""
+    global sim_controller
+
     app = web.Application()
     app["config"] = config
+
+    # Initialize simulation controller
+    sim_controller = SimulationController(config)
+    sim_controller.set_log_callback(log_callback)
 
     # Routes
     app.router.add_get("/", index_handler)
