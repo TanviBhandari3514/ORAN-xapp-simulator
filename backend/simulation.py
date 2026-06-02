@@ -56,6 +56,15 @@ class SimulationController:
             # Start reading output in background
             asyncio.create_task(self._stream_output())
 
+            # Stream 2: e2term logs
+            self.e2term_process = await asyncio.create_subprocess_exec(
+                "docker", "logs", "e2term", "-f", "--since=1s",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.STDOUT,
+            )
+            asyncio.create_task(self._stream_generic(self.e2term_process, "e2term"))
+        
+            self.state = "running"
             return {"type": "status", "simulation": "running", "message": "Simulation started"}
 
         except FileNotFoundError:
@@ -101,21 +110,21 @@ class SimulationController:
             self.state = "error"
             return {"type": "status", "simulation": "error", "message": str(e)}
 
-    async def _stream_output(self):
-        """Read stdout from the simulation process and forward to log callback."""
-        if not self.process or not self.process.stdout:
-            return
-
+    async def _stream_generic(self, process, source: str):
+        """Generic stream reader for any subprocess."""
+        if self._log_callback:
+            await self._log_callback("system", f"[{source}] stream started")
         try:
             while True:
-                line = await self.process.stdout.readline()
+                line = await process.stdout.readline()
                 if not line:
                     break
                 decoded = line.decode("utf-8", errors="replace").rstrip()
                 if decoded and self._log_callback:
-                    await self._log_callback("xapp", decoded)
-        except Exception:
-            pass
+                    await self._log_callback(source, decoded)
+        except Exception as e:
+            if self._log_callback:
+                await self._log_callback("system", f"[{source}] stream error: {e}")
 
         # Process ended
         if self.state == "running":
