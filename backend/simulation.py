@@ -29,10 +29,25 @@ class SimulationController:
             return {"type": "status", "simulation": self.state, "message": "Already running"}
 
         self.state = "starting"
+
+    # verify container exists first ---
+    check = await asyncio.create_subprocess_exec(
+        "docker", "inspect", "--format={{.State.Running}}", self.container,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stdout, stderr = await check.communicate()
+    if stdout.decode().strip() != "true":
+        self.state = "error"
+        msg = f"Container '{self.container}' is not running. Run setup-ric-bronze.sh first."
+        if self._log_callback:
+            await self._log_callback("system", msg)
+        return {"type": "status", "simulation": "error", "message": msg}
+        
         try:
             # Execute run_xapp.sh inside the Docker container
             self.process = await asyncio.create_subprocess_exec(
-                "docker", "exec", self.container, "bash", self.xapp_script,
+                "docker", "exec", "-i", self.container, "bash", self.xapp_script,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.STDOUT,
             )
